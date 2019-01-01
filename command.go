@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/pingcap/tidb/kv"
 )
 
 type Context struct {
@@ -138,12 +140,23 @@ func txnScan(ctx *Context, key []byte) error {
 	}
 	defer txn.Rollback()
 
+	if c.opt.keyOnly {
+		txn.SetOption(kv.KeyOnly, true)
+	}
 	iter, err := txn.Iter(key, nil)
 	if err != nil {
 		return err
 	}
+	defer iter.Close()
+	limit := ctx.Limit
 	for iter.Valid() {
 		fmt.Fprintln(ctx.Out, iter.Key(), iter.Value())
+		limit--
+
+		// avoid the last unused iter.Next
+		if limit == 0 {
+			break
+		}
 		if err := iter.Next(); err != nil {
 			return err
 		}
@@ -176,6 +189,7 @@ func Call(c *Client, args []string) error {
 	}
 	out := ioutil.Discard
 	if c.opt.verbose {
+		fmt.Println(name, args)
 		out = os.Stdout
 	}
 	ctx := &Context{

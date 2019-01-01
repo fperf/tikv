@@ -1,6 +1,7 @@
 package tikv
 
 import (
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"github.com/fperf/fperf"
 	"github.com/pingcap/tidb/kv"
 	"github.com/pingcap/tidb/store/tikv"
+	"github.com/sirupsen/logrus"
 )
 
 const seqPlaceHolder = "__seq_int__"
@@ -74,8 +76,14 @@ func randCreater(max int64) func() string {
 		"00000000000000",
 		"000000000000000",
 	}
+	var v int64
+	m := &sync.Mutex{}
+	r := rand.New(rand.NewSource(1))
 	return func() string {
-		s := strconv.FormatInt(rand.Int63n(max), 10)
+		m.Lock()
+		v = r.Int63n(max)
+		s := strconv.FormatInt(v, 10)
+		m.Unlock()
 		filled := len(l) - len(s)
 		if filled <= 0 {
 			return s
@@ -105,6 +113,7 @@ type options struct {
 	raw     bool
 	verbose bool
 	limit   int
+	keyOnly bool
 }
 
 type Client struct {
@@ -120,6 +129,7 @@ func New(flag *fperf.FlagSet) fperf.Client {
 	flag.BoolVar(&c.opt.raw, "raw", false, "using the raw client, notice that the raw client and txn client must not be used together")
 	flag.IntVar(&c.opt.limit, "n", 0, "scan limit")
 	flag.BoolVar(&c.opt.verbose, "v", false, "verbose output")
+	flag.BoolVar(&c.opt.keyOnly, "keyonly", false, "fetch key only")
 	flag.Parse()
 	c.args = flag.Args()
 	if len(c.args) == 0 {
@@ -130,6 +140,10 @@ func New(flag *fperf.FlagSet) fperf.Client {
 }
 
 func (c *Client) Dial(addr string) error {
+	if !c.opt.verbose {
+		logrus.SetOutput(ioutil.Discard)
+	}
+
 	s, err := tikv.Driver{}.Open(addr)
 	if err != nil {
 		return err

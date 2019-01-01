@@ -13,6 +13,7 @@ require (
 	github.com/pingcap/tipb v0.0.0-20181126132056-a7fd2aaa9719 // indirect
 	github.com/prometheus/client_golang v0.9.2 // indirect
 	github.com/shafreeck/fperf v0.0.0-20181219114840-64fb2736fe81
+	github.com/sirupsen/logrus v1.2.0
 	github.com/uber/jaeger-client-go v2.15.1-0.20181220222220-68407ce61637+incompatible // indirect
 	github.com/uber/jaeger-lib v2.0.0+incompatible // indirect
 	golang.org/x/net v0.0.0-20181220203305-927f97764cc3 // indirect
