@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/fperf/fperf"
 	"github.com/pingcap/tidb/kv"
 	"github.com/pingcap/tidb/store/tikv"
-	"github.com/shafreeck/fperf"
 )
 
 const seqPlaceHolder = "__seq_int__"

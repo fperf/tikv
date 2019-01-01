@@ -2,6 +2,7 @@ module github.com/fperf/tikv
 
 require (
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
+	github.com/fperf/fperf v0.0.0-20181226164411-96bbef00e6af
 	github.com/influxdata/influxdb v1.7.2 // indirect
 	github.com/influxdata/platform v0.0.0-20181221041837-9d0ed9020c3f // indirect
 	github.com/juju/errors v0.0.0-20181118221551-089d3ea4e4d5 // indirect
